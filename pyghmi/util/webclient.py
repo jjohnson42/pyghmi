@@ -16,6 +16,7 @@
 # sake of typical internal management devices.  Compatibility back to python
 # 2.6 as is found in commonly used enterprise linux distributions.
 
+import base64
 import json
 import pyghmi.exceptions as pygexc
 import socket
@@ -124,6 +125,10 @@ class SecureHTTPConnection(httplib.HTTPConnection, object):
 
     def set_header(self, key, value):
         self.stdheaders[key] = value
+
+    def set_basic_credentials(self, username, password):
+        self.stdheaders['Authorization'] = 'Basic {0}'.format(
+            base64.b64encode(':'.join((username, password))))
 
     def connect(self):
         addrinfo = socket.getaddrinfo(self.host, self.port)[0]
