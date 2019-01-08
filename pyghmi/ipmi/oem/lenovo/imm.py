@@ -853,6 +853,11 @@ class XCCClient(IMMClient):
                         yield self.get_disk_firmware(diskent)
                     elif mode==1:
                         yield self.get_disk_hardware(diskent)
+                for diskent in adp.get('aimDisks', ()):
+                    if mode==0:
+                        yield self.get_disk_firmware(diskent, 'M.2-')
+                    elif mode==1:
+                        yield self.get_disk_hardware(diskent)
 
     def get_disk_hardware(self, diskent):
         bdata = {}
@@ -863,9 +868,9 @@ class XCCClient(IMMClient):
         bdata['Description'] = diskent['type'].rstrip()
         return (diskname, bdata)
 
-    def get_disk_firmware(self, diskent):
+    def get_disk_firmware(self, diskent, prefix=''):
         bdata = {}
-        diskname = 'Disk {0}'.format(diskent['slotNo'])
+        diskname = 'Disk {1}{0}'.format(diskent['slotNo'], prefix)
         bdata['model'] = diskent[
             'productName'].rstrip()
         bdata['version'] = diskent['fwVersion']
@@ -1190,7 +1195,7 @@ class XCCClient(IMMClient):
                         psudata, util._monotonic_time())
         if not psudata:
             return
-        for psu in psudata['items']:
+        for psu in psudata.get('items', ()):
             yield ('PSU {0}'.format(psu['slot']),
                    {
                        'model': psu['model'],
